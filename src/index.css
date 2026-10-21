@@ -41,3 +41,92 @@ input, select, textarea {
 .home { max-width: 1320px; margin: 0 auto; padding: max(20px, env(safe-area-inset-top)) 16px 32px; }
 .home header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
 .sottotitolo { margin: 0 0 4px; font-size: 13px; color: var(--testo-2); }
+
+.azioni-testa { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.azioni-testa .primario { height: 44px; }
+.pericolo { background: var(--carta); color: var(--errore); border: 1px solid var(--errore); }
+
+/* Calendario */
+.calendario { display: flex; flex-direction: column; gap: 12px; }
+.barra { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.barra h2 { margin: 0; font-size: 17px; }
+.navigazione { display: flex; gap: 6px; }
+.icona { width: 44px; padding: 0; font-size: 22px; line-height: 1; }
+.filtri { display: flex; flex-wrap: wrap; gap: 8px; }
+.filtro { min-height: 40px; border-radius: 999px; padding: 0 14px; font-size: 13px; background: var(--carta); --c: var(--verde); color: var(--c); border: 1px solid var(--c); }
+.filtro[aria-pressed='true'] { background: var(--c); color: #fff; }
+.filtro-logistica { --c: #1f5fa8; }
+.filtro-stabilimento { --c: #4b5a22; }
+.filtro-amministrazione { --c: #6b3fa0; }
+
+.griglia-contenitore { overflow-x: auto; background: var(--carta); border: 1px solid var(--bordo); border-radius: 16px; }
+.griglia { min-width: 900px; display: grid; grid-template-columns: 64px repeat(7, minmax(0, 1fr)); }
+.intestazione-vuota, .intestazione { height: 56px; border-bottom: 1px solid var(--bordo); }
+.intestazione { display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid var(--bordo); font-size: 12px; }
+.intestazione strong { font-size: 18px; }
+.intestazione.oggi { background: var(--verde); color: #fff; }
+.ore { position: relative; border-right: 1px solid var(--bordo); }
+.ore span { position: absolute; right: 8px; margin-top: 4px; font-size: 12px; color: var(--testo-2); }
+.colonna {
+  position: relative; border-left: 1px solid var(--bordo);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 55px, #eef0ea 55px, #eef0ea 56px);
+}
+.colonna.weekend { background-color: #fafaf7; }
+.blocco {
+  position: absolute; left: 4px; right: 4px; min-height: 0; padding: 6px 8px; border: 1px solid; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; overflow: hidden; text-align: left; font-size: 12px; font-weight: 400;
+}
+.blocco strong { font-size: 13px; }
+.blocco .ora { font-weight: 600; }
+.completato strong, .completato .titolo { text-decoration: line-through; opacity: 0.75; }
+
+.giorni { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.giorno {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; padding: 8px 0;
+  background: var(--carta); color: var(--testo); border: 1px solid var(--bordo); font-weight: 500; font-size: 11px;
+}
+.giorno strong { font-size: 17px; }
+.giorno small { font-size: 10px; }
+.giorno.oggi { border-color: var(--verde); }
+.giorno[aria-pressed='true'] { background: var(--verde); color: #fff; border-color: var(--verde); }
+.titolo-giorno { margin: 4px 0 0; font-size: 15px; text-transform: capitalize; }
+.lista { display: flex; flex-direction: column; gap: 12px; }
+.vuoto { padding: 32px 16px; text-align: center; color: var(--testo-2); background: var(--carta); border: 1px dashed var(--bordo-campo); border-radius: 14px; margin: 0; }
+.scheda {
+  display: flex; flex-direction: column; align-items: stretch; gap: 6px; text-align: left; padding: 14px 16px;
+  background: var(--carta); color: var(--testo); border: 1px solid var(--bordo); border-radius: 14px; font-weight: 400;
+}
+.riga { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.titolo { font-size: 16px; font-weight: 600; }
+.dettaglio { font-size: 13px; color: var(--testo-2); }
+.etichetta { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+
+/* Pannelli (dettaglio e form) */
+.pannello-sfondo { position: fixed; inset: 0; background: rgba(24, 32, 26, 0.45); display: flex; justify-content: center; align-items: flex-end; z-index: 10; }
+.pannello {
+  width: 100%; max-width: 520px; max-height: 92dvh; overflow-y: auto; background: var(--fondo);
+  border-radius: 20px 20px 0 0; padding: 20px 16px max(24px, env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 14px;
+}
+@media (min-width: 760px) {
+  .pannello-sfondo { align-items: center; }
+  .pannello { border-radius: 20px; }
+}
+.pannello-testa { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.pannello h2 { margin: 0; font-size: 22px; }
+.pannello h3 { margin: 8px 0 0; font-size: 15px; }
+.due-colonne { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.due-colonne input { min-width: 0; font-size: 14px; }
+textarea { height: auto; padding: 10px 12px; resize: vertical; }
+.avviso { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 12px 14px; border-radius: 12px; background: #fff1de; border: 1px solid #e8b56a; color: #6e3b00; font-size: 13px; }
+.stato { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f1f2ee; color: #4a5246; }
+.stato.fatto { background: #e3f1e6; color: #1e6b34; }
+.campi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.campi dt { font-size: 12px; color: var(--testo-2); }
+.campi dd { margin: 2px 0 0; font-weight: 600; }
+.note { margin: 0; padding: 12px; background: var(--carta); border-radius: 12px; border: 1px solid var(--bordo); }
+.storico { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.storico li { display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid #eef0ea; font-size: 14px; }
+.storico small { color: var(--testo-2); }
+.azioni { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.centrato { text-align: center; margin: 0; }

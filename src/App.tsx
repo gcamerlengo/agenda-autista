@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { configurato, supabase } from './lib/supabase'
-import { NOMI_RUOLO, type Utente } from './lib/tipi'
+import { aggiungiGiorni, inizioSettimana } from './lib/date'
+import { NOMI_RUOLO, puoAssegnare, type Impegno, type Utente } from './lib/tipi'
+import { useImpegni } from './lib/useImpegni'
 import Accesso from './Accesso'
+import Calendario from './Calendario'
+import Dettaglio from './Dettaglio'
+import FormImpegno from './FormImpegno'
+
+type Vista = { tipo: 'nessuna' } | { tipo: 'dettaglio'; id: string } | { tipo: 'form'; impegno: Impegno | null }
 
 export default function App() {
   const [sessione, setSessione] = useState<Session | null>(null)
-  const [utente, setUtente] = useState<Utente | null>(null)
   const [caricamento, setCaricamento] = useState(true)
 
   useEffect(() => {
@@ -18,19 +24,6 @@ export default function App() {
     return () => data.subscription.unsubscribe()
   }, [])
 
-  useEffect(() => {
-    if (!sessione) {
-      setUtente(null)
-      return
-    }
-    supabase
-      .from('utenti')
-      .select('*')
-      .eq('id', sessione.user.id)
-      .single()
-      .then(({ data }) => setUtente(data as Utente | null))
-  }, [sessione])
-
   if (!configurato) {
     return (
       <main className="accesso">
@@ -41,21 +34,80 @@ export default function App() {
   }
   if (caricamento) return null
   if (!sessione) return <Accesso />
+  return <Agenda sessione={sessione} />
+}
+
+function Agenda({ sessione }: { sessione: Session }) {
+  const [utenti, setUtenti] = useState<Map<string, Utente>>(new Map())
+  const [lunedi, setLunedi] = useState(() => inizioSettimana(new Date()))
+  const [vista, setVista] = useState<Vista>({ tipo: 'nessuna' })
+  const { impegni, errore, ricarica } = useImpegni(lunedi)
+
+  useEffect(() => {
+    supabase
+      .from('utenti')
+      .select('*')
+      .then(({ data }) => setUtenti(new Map((data as Utente[] | null ?? []).map((u) => [u.id, u]))))
+  }, [])
+
+  const io = utenti.get(sessione.user.id)
+  const aperto = useMemo(
+    () => (vista.tipo === 'dettaglio' ? impegni.find((i) => i.id === vista.id) : undefined),
+    [vista, impegni],
+  )
+
+  function cambiaSettimana(delta: number | 'oggi') {
+    setLunedi(delta === 'oggi' ? inizioSettimana(new Date()) : aggiungiGiorni(lunedi, delta * 7))
+  }
 
   return (
     <main className="home">
       <header>
         <div>
-          <p className="sottotitolo">
-            {utente ? `${utente.nome} · ${NOMI_RUOLO[utente.ruolo]}` : sessione.user.email}
-          </p>
+          <p className="sottotitolo">{io ? `${io.nome} · ${NOMI_RUOLO[io.ruolo]}` : sessione.user.email}</p>
           <h1>Agenda di Stefano</h1>
         </div>
-        <button className="secondario" onClick={() => supabase.auth.signOut()}>
-          Esci
-        </button>
+        <div className="azioni-testa">
+          {io && puoAssegnare(io.ruolo) && (
+            <button className="primario" onClick={() => setVista({ tipo: 'form', impegno: null })}>+ Nuovo impegno</button>
+          )}
+          <button className="secondario" onClick={() => supabase.auth.signOut()}>Esci</button>
+        </div>
       </header>
-      <p>Accesso riuscito. Il calendario arriva nel prossimo passo.</p>
+
+      {errore && <p role="alert" className="errore">{errore}</p>}
+      {io && !io.ruolo && <p className="errore">Profilo non trovato.</p>}
+
+      <Calendario
+        key={lunedi.toISOString()}
+        lunedi={lunedi}
+        impegni={impegni}
+        utenti={utenti}
+        onSettimana={cambiaSettimana}
+        onApri={(i) => setVista({ tipo: 'dettaglio', id: i.id })}
+      />
+
+      {aperto && io && (
+        <Dettaglio
+          impegno={aperto}
+          io={io}
+          utenti={utenti}
+          onChiudi={() => setVista({ tipo: 'nessuna' })}
+          onModifica={() => setVista({ tipo: 'form', impegno: aperto })}
+          onCambiato={ricarica}
+        />
+      )}
+      {vista.tipo === 'form' && (
+        <FormImpegno
+          impegno={vista.impegno}
+          giornoIniziale={vista.impegno ? new Date(vista.impegno.inizio) : new Date()}
+          onChiudi={() => setVista(vista.impegno ? { tipo: 'dettaglio', id: vista.impegno.id } : { tipo: 'nessuna' })}
+          onSalvato={() => {
+            ricarica()
+            setVista(vista.impegno ? { tipo: 'dettaglio', id: vista.impegno.id } : { tipo: 'nessuna' })
+          }}
+        />
+      )}
     </main>
   )
 }
