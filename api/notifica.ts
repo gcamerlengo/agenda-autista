@@ -30,7 +30,7 @@ export type Evento = {
   destinatari: Destinatario[]
 }
 
-const SITO = 'https://agenda-autista-sette.vercel.app'
+const SITO = 'https://agenda-autista-seven.vercel.app'
 
 function quando(i: Impegno): string {
   const fmt = (d: string, o: Intl.DateTimeFormatOptions) =>
