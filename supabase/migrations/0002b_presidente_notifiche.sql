@@ -49,7 +49,7 @@ create table if not exists privato.configurazione (
 );
 
 insert into privato.configurazione (chiave, valore) values
-  ('url_notifiche', 'https://agenda-autista-sette.vercel.app/api/notifica'),
+  ('url_notifiche', 'https://agenda-autista-seven.vercel.app/api/notifica'),
   ('segreto_notifiche', encode(extensions.gen_random_bytes(24), 'hex'))
 on conflict (chiave) do nothing;
 
