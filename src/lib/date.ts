@@ -34,7 +34,10 @@ export function dataEOra(d: Date | string): string {
 export function etichettaSettimana(lunedi: Date): string {
   const domenica = aggiungiGiorni(lunedi, 6)
   const fine = domenica.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
-  return `${lunedi.getDate()} – ${fine}`
+  const inizio = lunedi.getMonth() === domenica.getMonth()
+    ? String(lunedi.getDate())
+    : lunedi.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })
+  return `${inizio} – ${fine}`
 }
 
 // Valore per <input type="datetime-local"> nell'ora locale.
