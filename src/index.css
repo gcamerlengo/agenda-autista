@@ -145,7 +145,7 @@ textarea { height: auto; padding: 10px 12px; resize: vertical; }
 .modi button[aria-pressed='true'] { background: var(--carta); color: var(--verde); box-shadow: 0 1px 2px rgba(24, 32, 26, 0.12); }
 .titolo-settimana { margin: 0; font-size: 17px; }
 .vista-giorno { display: grid; gap: 16px; align-items: start; }
-@media (min-width: 760px) { .vista-giorno { grid-template-columns: 360px minmax(0, 1fr); } }
+@media (min-width: 760px) { .vista-giorno { grid-template-columns: 300px minmax(0, 1fr); } }
 .orario-giorno { display: flex; flex-direction: column; gap: 12px; }
 .orario-giorno .titolo-giorno { margin: 0; }
 
@@ -185,10 +185,11 @@ textarea { height: auto; padding: 10px 12px; resize: vertical; }
   font-size: 13px; color: var(--testo-2);
 }
 
-/* Calendario più compatto nel campo Giorno del form */
-.campo .mese { padding: 6px 8px; max-width: 360px; }
-.campo .mese-testa { margin-bottom: 2px; }
-.campo .mese-testa strong { font-size: 14px; }
-.campo .mese-testa .icona { width: 36px; min-height: 36px; font-size: 18px; }
-.campo .mese-nome { font-size: 10px; padding: 2px 0; }
-.campo .mese-giorno { min-height: 34px; font-size: 13px; border-radius: 8px; }
+/* Calendario compatto, nella pagina principale e nel form, per lasciare spazio agli impegni */
+.mese { padding: 6px 8px; max-width: 360px; }
+.mese-testa { margin-bottom: 2px; }
+.mese-testa strong { font-size: 14px; }
+.mese-testa .icona { width: 36px; min-height: 36px; font-size: 18px; }
+.mese-nome { font-size: 10px; padding: 2px 0; }
+.mese-giorno { min-height: 34px; font-size: 13px; border-radius: 8px; }
+.mese-giorno .punto { bottom: 3px; width: 4px; height: 4px; margin-left: -2px; }
