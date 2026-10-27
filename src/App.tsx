@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { configurato, supabase } from './lib/supabase'
-import { aggiungiGiorni, inizioSettimana } from './lib/date'
+import { aggiungiGiorni, aggiungiMesi, grigliaMese, inizioGiorno, inizioMese, inizioSettimana } from './lib/date'
 import { NOMI_RUOLO, puoAssegnare, type Impegno, type Utente } from './lib/tipi'
 import { useImpegni } from './lib/useImpegni'
 import Accesso from './Accesso'
-import Calendario from './Calendario'
+import Calendario, { type Modo } from './Calendario'
 import Dettaglio from './Dettaglio'
 import FormImpegno from './FormImpegno'
 import PulsanteNotifiche from './PulsanteNotifiche'
@@ -40,9 +40,20 @@ export default function App() {
 
 function Agenda({ sessione }: { sessione: Session }) {
   const [utenti, setUtenti] = useState<Map<string, Utente>>(new Map())
-  const [lunedi, setLunedi] = useState(() => inizioSettimana(new Date()))
+  // L'app si apre sulla giornata di oggi, con il calendario del mese.
+  const [modo, setModo] = useState<Modo>('giorno')
+  const [giorno, setGiorno] = useState(() => inizioGiorno(new Date()))
+  const [mese, setMese] = useState(() => inizioMese(new Date()))
   const [vista, setVista] = useState<Vista>({ tipo: 'nessuna' })
-  const { impegni, errore, ricarica } = useImpegni(lunedi)
+  const [da, a] = useMemo(() => {
+    if (modo === 'settimana') {
+      const lunedi = inizioSettimana(giorno)
+      return [lunedi, aggiungiGiorni(lunedi, 7)]
+    }
+    const griglia = grigliaMese(mese)
+    return [griglia[0], aggiungiGiorni(griglia[41], 1)]
+  }, [modo, giorno, mese])
+  const { impegni, errore, ricarica } = useImpegni(da, a)
 
   useEffect(() => {
     supabase
@@ -57,8 +68,17 @@ function Agenda({ sessione }: { sessione: Session }) {
     [vista, impegni],
   )
 
-  function cambiaSettimana(delta: number | 'oggi') {
-    setLunedi(delta === 'oggi' ? inizioSettimana(new Date()) : aggiungiGiorni(lunedi, delta * 7))
+  function scegliGiorno(d: Date) {
+    setGiorno(inizioGiorno(d))
+    setMese(inizioMese(d))
+  }
+
+  function cambiaMese(delta: number) {
+    const nuovo = aggiungiMesi(mese, delta)
+    setMese(nuovo)
+    // Nel mese corrente resta selezionato oggi, negli altri il primo del mese.
+    const oggi = inizioGiorno(new Date())
+    setGiorno(nuovo.getTime() === inizioMese(oggi).getTime() ? oggi : nuovo)
   }
 
   return (
@@ -72,7 +92,6 @@ function Agenda({ sessione }: { sessione: Session }) {
           {io && puoAssegnare(io.ruolo) && (
             <button className="primario" onClick={() => setVista({ tipo: 'form', impegno: null })}>+ Nuovo impegno</button>
           )}
-          <button className="secondario" onClick={() => supabase.auth.signOut()}>Esci</button>
         </div>
       </header>
 
@@ -81,13 +100,23 @@ function Agenda({ sessione }: { sessione: Session }) {
       {io && !io.ruolo && <p className="errore">Profilo non trovato.</p>}
 
       <Calendario
-        key={lunedi.toISOString()}
-        lunedi={lunedi}
+        modo={modo}
+        onModo={setModo}
+        giorno={giorno}
+        onGiorno={scegliGiorno}
+        mese={mese}
+        onMese={cambiaMese}
+        onOggi={() => scegliGiorno(new Date())}
         impegni={impegni}
         utenti={utenti}
-        onSettimana={cambiaSettimana}
         onApri={(i) => setVista({ tipo: 'dettaglio', id: i.id })}
       />
+
+      {/* Esci sta in fondo, lontano da "Nuovo impegno", per non toccarlo per sbaglio. */}
+      <footer className="piede">
+        <span>{sessione.user.email}</span>
+        <button className="secondario" onClick={() => supabase.auth.signOut()}>Esci</button>
+      </footer>
 
       {aperto && io && (
         <Dettaglio
@@ -102,7 +131,7 @@ function Agenda({ sessione }: { sessione: Session }) {
       {vista.tipo === 'form' && (
         <FormImpegno
           impegno={vista.impegno}
-          giornoIniziale={vista.impegno ? new Date(vista.impegno.inizio) : new Date()}
+          giornoIniziale={vista.impegno ? new Date(vista.impegno.inizio) : giorno}
           onChiudi={() => setVista(vista.impegno ? { tipo: 'dettaglio', id: vista.impegno.id } : { tipo: 'nessuna' })}
           onSalvato={() => {
             ricarica()

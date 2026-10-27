@@ -1,26 +1,28 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase'
-import { aggiungiGiorni } from './date'
 import type { Impegno } from './tipi'
 
-// Impegni della settimana, aggiornati in tempo reale quando qualcuno li cambia.
-export function useImpegni(lunedi: Date) {
+// Impegni nell'intervallo [da, a), aggiornati in tempo reale quando qualcuno li cambia.
+export function useImpegni(da: Date, a: Date) {
   const [impegni, setImpegni] = useState<Impegno[]>([])
   const [errore, setErrore] = useState('')
+
+  const inizio = da.getTime()
+  const fine = a.getTime()
 
   const ricarica = useCallback(async () => {
     const { data, error } = await supabase
       .from('impegni')
       .select('*')
-      .lt('inizio', aggiungiGiorni(lunedi, 7).toISOString())
-      .gt('fine', lunedi.toISOString())
+      .lt('inizio', new Date(fine).toISOString())
+      .gt('fine', new Date(inizio).toISOString())
       .order('inizio')
     if (error) setErrore('Impossibile caricare gli impegni.')
     else {
       setErrore('')
       setImpegni(data as Impegno[])
     }
-  }, [lunedi])
+  }, [inizio, fine])
 
   useEffect(() => {
     ricarica()

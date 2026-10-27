@@ -1,8 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from './lib/supabase'
-import { ora, perInput } from './lib/date'
+import { aggiungiMesi, conOra, inizioGiorno, inizioMese, ora, perOra } from './lib/date'
 import { MEZZI, type Impegno } from './lib/tipi'
 import { spiegaErrore } from './lib/useImpegni'
+import CampoLuogo from './CampoLuogo'
+import Dettatura from './Dettatura'
+import MeseCalendario from './MeseCalendario'
 
 type Props = {
   impegno: Impegno | null // null = nuovo
@@ -14,11 +17,13 @@ type Props = {
 type Conflitto = Pick<Impegno, 'titolo' | 'inizio' | 'fine'>
 
 export default function FormImpegno({ impegno, giornoIniziale, onChiudi, onSalvato }: Props) {
-  const base = new Date(giornoIniziale)
-  base.setHours(9, 0, 0, 0)
   const [titolo, setTitolo] = useState(impegno?.titolo ?? '')
-  const [inizio, setInizio] = useState(perInput(impegno?.inizio ?? base))
-  const [fine, setFine] = useState(perInput(impegno?.fine ?? new Date(base.getTime() + 3600000)))
+  const [giorno, setGiorno] = useState(() => inizioGiorno(giornoIniziale))
+  const [mese, setMese] = useState(() => inizioMese(giornoIniziale))
+  const [oraInizio, setOraInizio] = useState(impegno ? perOra(impegno.inizio) : '09:00')
+  const [oraFine, setOraFine] = useState(impegno ? perOra(impegno.fine) : '10:00')
+  const inizio = conOra(giorno, oraInizio).getTime()
+  const fine = conOra(giorno, oraFine).getTime()
   const [luogo, setLuogo] = useState(impegno?.luogo ?? '')
   const [mezzo, setMezzo] = useState(impegno?.mezzo ?? MEZZI[0])
   const [merce, setMerce] = useState(impegno?.merce ?? '')
@@ -82,14 +87,26 @@ export default function FormImpegno({ impegno, giornoIniziale, onChiudi, onSalva
           Titolo
           <input required value={titolo} onChange={(e) => setTitolo(e.target.value)} placeholder="Es. Consegna cliente" />
         </label>
+        <div className="campo">
+          <span className="etichetta-campo">Giorno</span>
+          <MeseCalendario
+            mese={mese}
+            onMese={(d) => setMese(aggiungiMesi(mese, d))}
+            scelto={giorno}
+            onScegli={(d) => {
+              setGiorno(inizioGiorno(d))
+              setMese(inizioMese(d))
+            }}
+          />
+        </div>
         <div className="due-colonne">
           <label>
             Dalle
-            <input type="datetime-local" required value={inizio} onChange={(e) => setInizio(e.target.value)} />
+            <input type="time" required value={oraInizio} onChange={(e) => setOraInizio(e.target.value)} />
           </label>
           <label>
             Alle
-            <input type="datetime-local" required value={fine} onChange={(e) => setFine(e.target.value)} />
+            <input type="time" required value={oraFine} onChange={(e) => setOraFine(e.target.value)} />
           </label>
         </div>
         {!orarioValido && <p role="alert" className="avviso">L’orario di fine deve essere dopo quello di inizio.</p>}
@@ -101,10 +118,7 @@ export default function FormImpegno({ impegno, giornoIniziale, onChiudi, onSalva
             </span>
           </div>
         )}
-        <label>
-          Luogo
-          <input value={luogo} onChange={(e) => setLuogo(e.target.value)} />
-        </label>
+        <CampoLuogo valore={luogo} onCambia={setLuogo} />
         <label>
           Mezzo
           <select value={mezzo} onChange={(e) => setMezzo(e.target.value)}>
@@ -121,6 +135,7 @@ export default function FormImpegno({ impegno, giornoIniziale, onChiudi, onSalva
           Note per Stefano
           <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
         </label>
+        <Dettatura onTesto={(t) => setNote((n) => (n.trim() ? `${n.trimEnd()} ${t}` : t))} />
         {errore && <p role="alert" className="errore">{errore}</p>}
         <button className="primario" disabled={attesa || !!conflittoVisibile || !orarioValido}>
           {conflittoVisibile ? 'Scegli un altro orario' : attesa ? 'Salvataggio…' : 'Salva'}

@@ -1,46 +1,85 @@
 import { useMemo, useState } from 'react'
-import { aggiungiGiorni, etichettaSettimana, GIORNI_BREVI, giornoLungo, ora, oreDecimali, stessoGiorno } from './lib/date'
+import { aggiungiGiorni, etichettaSettimana, GIORNI_BREVI, giornoLungo, inizioSettimana, ora, oreDecimali, stessoGiorno } from './lib/date'
 import { COLORI_RUOLO, NOMI_RUOLO, type Impegno, type Ruolo, type Utente } from './lib/tipi'
 import { useSchermoLargo } from './lib/useLarghezza'
+import MeseCalendario from './MeseCalendario'
 
 const ORA_INIZIO = 6
 const ORA_FINE = 20
 const ALTEZZA_ORA = 56
 
+export type Modo = 'giorno' | 'settimana'
+
 type Props = {
-  lunedi: Date
+  modo: Modo
+  onModo: (m: Modo) => void
+  giorno: Date
+  onGiorno: (d: Date) => void
+  mese: Date
+  onMese: (delta: number) => void
+  onOggi: () => void
   impegni: Impegno[]
   utenti: Map<string, Utente>
-  onSettimana: (delta: number | 'oggi') => void
   onApri: (i: Impegno) => void
 }
 
 type Filtro = 'tutti' | Exclude<Ruolo, 'autista'>
 
-export default function Calendario({ lunedi, impegni, utenti, onSettimana, onApri }: Props) {
+export default function Calendario({ modo, onModo, giorno, onGiorno, mese, onMese, onOggi, impegni, utenti, onApri }: Props) {
   const largo = useSchermoLargo()
   const [filtro, setFiltro] = useState<Filtro>('tutti')
   const oggi = new Date()
-  const [giornoScelto, setGiornoScelto] = useState(() => {
-    const idx = Math.round((oggi.getTime() - lunedi.getTime()) / 86400000)
-    return idx >= 0 && idx < 7 ? idx : 0
-  })
+  const lunedi = useMemo(() => inizioSettimana(giorno), [giorno])
 
   const giorni = useMemo(() => Array.from({ length: 7 }, (_, i) => aggiungiGiorni(lunedi, i)), [lunedi])
   const visibili = impegni.filter((i) => filtro === 'tutti' || utenti.get(i.assegnato_da)?.ruolo === filtro)
   const delGiorno = (g: Date) => visibili.filter((i) => stessoGiorno(new Date(i.inizio), g))
   const ruoloDi = (i: Impegno): Ruolo => utenti.get(i.assegnato_da)?.ruolo ?? 'logistica'
 
+  const listaGiorno = (
+    <>
+      <h3 className="titolo-giorno">{giornoLungo(giorno)}</h3>
+      <div className="lista">
+        {delGiorno(giorno).length === 0 && <p className="vuoto">Nessun impegno in questo giorno</p>}
+        {delGiorno(giorno).map((imp) => {
+          const r = ruoloDi(imp)
+          const c = COLORI_RUOLO[r]
+          return (
+            <button key={imp.id} className={`scheda${imp.stato === 'completato' ? ' completato' : ''}`} onClick={() => onApri(imp)}>
+              <div className="riga">
+                <strong>{ora(imp.inizio)} – {ora(imp.fine)}</strong>
+                <span className="etichetta" style={{ background: c.fondo, color: c.testo }}>{NOMI_RUOLO[r]}</span>
+              </div>
+              <span className="titolo">{imp.titolo}</span>
+              {imp.luogo && <span className="dettaglio">Luogo: {imp.luogo}</span>}
+              {(imp.mezzo || imp.merce) && (
+                <span className="dettaglio">{[imp.mezzo && `Mezzo: ${imp.mezzo}`, imp.merce && `Merce: ${imp.merce}`].filter(Boolean).join(' · ')}</span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </>
+  )
+
   return (
     <section className="calendario">
       <div className="barra">
-        <h2>{etichettaSettimana(lunedi)}</h2>
+        <div className="modi" role="group" aria-label="Vista">
+          <button aria-pressed={modo === 'giorno'} onClick={() => onModo('giorno')}>Giorno</button>
+          <button aria-pressed={modo === 'settimana'} onClick={() => onModo('settimana')}>Settimana</button>
+        </div>
         <div className="navigazione">
-          <button className="secondario icona" aria-label="Settimana precedente" onClick={() => onSettimana(-1)}>‹</button>
-          <button className="secondario" onClick={() => onSettimana('oggi')}>Oggi</button>
-          <button className="secondario icona" aria-label="Settimana successiva" onClick={() => onSettimana(1)}>›</button>
+          {modo === 'settimana' && (
+            <button className="secondario icona" aria-label="Settimana precedente" onClick={() => onGiorno(aggiungiGiorni(giorno, -7))}>‹</button>
+          )}
+          <button className="secondario" onClick={onOggi}>Oggi</button>
+          {modo === 'settimana' && (
+            <button className="secondario icona" aria-label="Settimana successiva" onClick={() => onGiorno(aggiungiGiorni(giorno, 7))}>›</button>
+          )}
         </div>
       </div>
+      {modo === 'settimana' && <h2 className="titolo-settimana">{etichettaSettimana(lunedi)}</h2>}
 
       <div className="filtri" role="group" aria-label="Filtra per chi ha assegnato">
         {(['tutti', 'logistica', 'stabilimento', 'amministrazione', 'presidente'] as Filtro[]).map((f) => (
@@ -55,7 +94,12 @@ export default function Calendario({ lunedi, impegni, utenti, onSettimana, onApr
         ))}
       </div>
 
-      {largo ? (
+      {modo === 'giorno' ? (
+        <div className="vista-giorno">
+          <MeseCalendario mese={mese} onMese={onMese} scelto={giorno} onScegli={onGiorno} conteggio={(d) => delGiorno(d).length} />
+          <div className="orario-giorno">{listaGiorno}</div>
+        </div>
+      ) : largo ? (
         <div className="griglia-contenitore">
           <div className="griglia">
             <div className="intestazione-vuota" />
@@ -106,10 +150,10 @@ export default function Calendario({ lunedi, impegni, utenti, onSettimana, onApr
               return (
                 <button
                   key={i}
-                  aria-pressed={giornoScelto === i}
+                  aria-pressed={stessoGiorno(g, giorno)}
                   aria-label={`${giornoLungo(g)}, ${n} impegni`}
                   className={`giorno${stessoGiorno(g, oggi) ? ' oggi' : ''}`}
-                  onClick={() => setGiornoScelto(i)}
+                  onClick={() => onGiorno(g)}
                 >
                   <span>{GIORNI_BREVI[i]}</span>
                   <strong>{g.getDate()}</strong>
@@ -118,27 +162,7 @@ export default function Calendario({ lunedi, impegni, utenti, onSettimana, onApr
               )
             })}
           </div>
-          <h3 className="titolo-giorno">{giornoLungo(giorni[giornoScelto])}</h3>
-          <div className="lista">
-            {delGiorno(giorni[giornoScelto]).length === 0 && <p className="vuoto">Nessun impegno in questo giorno</p>}
-            {delGiorno(giorni[giornoScelto]).map((imp) => {
-              const r = ruoloDi(imp)
-              const c = COLORI_RUOLO[r]
-              return (
-                <button key={imp.id} className={`scheda${imp.stato === 'completato' ? ' completato' : ''}`} onClick={() => onApri(imp)}>
-                  <div className="riga">
-                    <strong>{ora(imp.inizio)} – {ora(imp.fine)}</strong>
-                    <span className="etichetta" style={{ background: c.fondo, color: c.testo }}>{NOMI_RUOLO[r]}</span>
-                  </div>
-                  <span className="titolo">{imp.titolo}</span>
-                  {imp.luogo && <span className="dettaglio">Luogo: {imp.luogo}</span>}
-                  {(imp.mezzo || imp.merce) && (
-                    <span className="dettaglio">{[imp.mezzo && `Mezzo: ${imp.mezzo}`, imp.merce && `Merce: ${imp.merce}`].filter(Boolean).join(' · ')}</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
+          {listaGiorno}
         </>
       )}
     </section>
