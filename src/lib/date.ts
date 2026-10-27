@@ -50,3 +50,35 @@ export function perInput(d: Date | string): string {
 export function oreDecimali(d: Date): number {
   return d.getHours() + d.getMinutes() / 60
 }
+
+export function inizioGiorno(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+export function inizioMese(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1)
+}
+
+export function aggiungiMesi(d: Date, n: number): Date {
+  return new Date(d.getFullYear(), d.getMonth() + n, 1)
+}
+
+export function nomeMese(d: Date): string {
+  return d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+}
+
+// Le 6 settimane (42 giorni, da lunedì) che mostrano il mese intero.
+export function grigliaMese(mese: Date): Date[] {
+  const primo = inizioSettimana(inizioMese(mese))
+  return Array.from({ length: 42 }, (_, i) => aggiungiGiorni(primo, i))
+}
+
+// "HH:MM" nell'ora locale, per <input type="time">.
+export function perOra(d: Date | string): string {
+  return perInput(d).slice(11)
+}
+
+export function conOra(giorno: Date, hhmm: string): Date {
+  const [h, m] = hhmm.split(':').map(Number)
+  return new Date(giorno.getFullYear(), giorno.getMonth(), giorno.getDate(), h || 0, m || 0)
+}

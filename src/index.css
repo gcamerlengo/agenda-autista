@@ -138,3 +138,49 @@ textarea { height: auto; padding: 10px 12px; resize: vertical; }
 }
 .banner-notifiche span { flex: 1 1 220px; }
 .banner-notifiche .primario { height: 44px; }
+
+/* Vista Giorno / Settimana */
+.modi { display: inline-flex; padding: 3px; gap: 3px; background: #e9ebe4; border-radius: 12px; }
+.modi button { min-height: 38px; border: none; background: transparent; color: var(--testo-2); border-radius: 9px; }
+.modi button[aria-pressed='true'] { background: var(--carta); color: var(--verde); box-shadow: 0 1px 2px rgba(24, 32, 26, 0.12); }
+.titolo-settimana { margin: 0; font-size: 17px; }
+.vista-giorno { display: grid; gap: 16px; align-items: start; }
+@media (min-width: 760px) { .vista-giorno { grid-template-columns: 360px minmax(0, 1fr); } }
+.orario-giorno { display: flex; flex-direction: column; gap: 12px; }
+.orario-giorno .titolo-giorno { margin: 0; }
+
+/* Calendario mensile */
+.mese { background: var(--carta); border: 1px solid var(--bordo); border-radius: 16px; padding: 10px; }
+.mese-testa { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.mese-testa strong { font-size: 16px; text-transform: capitalize; }
+.mese-griglia { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.mese-nome { text-align: center; font-size: 11px; font-weight: 600; color: var(--testo-2); padding: 4px 0; }
+.mese-giorno {
+  position: relative; min-height: 42px; padding: 0; border: 1px solid transparent; border-radius: 10px;
+  background: transparent; color: var(--testo); font-weight: 500; font-size: 15px;
+}
+.mese-giorno.fuori { color: #a4ab9f; }
+.mese-giorno.oggi { border-color: var(--verde); color: var(--verde); font-weight: 700; }
+.mese-giorno[aria-pressed='true'] { background: var(--verde); border-color: var(--verde); color: #fff; }
+.mese-giorno .punto { position: absolute; bottom: 5px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: currentColor; }
+
+/* Campi del form */
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.etichetta-campo { font-size: 13px; font-weight: 600; }
+.suggerimenti {
+  list-style: none; margin: 0; padding: 4px;
+  background: var(--carta); border: 1px solid var(--bordo-campo); border-radius: 10px; box-shadow: 0 6px 18px rgba(24, 32, 26, 0.15);
+}
+.suggerimenti button { width: 100%; text-align: left; border: none; background: transparent; font-weight: 500; border-radius: 8px; }
+.suggerimenti button:hover { background: var(--fondo); }
+.dettatura { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: -6px; }
+.dettatura .secondario[aria-pressed='true'] { background: #fbebeb; color: var(--errore); border-color: var(--errore); }
+.aiuto { margin: -6px 0 0; font-size: 13px; color: var(--testo-2); }
+.dettatura .aiuto { margin: 0; }
+
+/* Piede con Esci */
+.piede {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-top: 32px; padding: 16px 0 max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--bordo);
+  font-size: 13px; color: var(--testo-2);
+}

@@ -22,7 +22,7 @@ type Destinatario = {
 }
 
 export type Evento = {
-  tipo: 'insert' | 'update' | 'delete'
+  tipo: 'insert' | 'update' | 'delete' | 'promemoria'
   autore: string | null
   assegnato_da: string | null
   impegno: Impegno
@@ -47,6 +47,10 @@ const CAMPI: [keyof Impegno, string][] = [
 export function componiMessaggio(e: Evento): { titolo: string; testo: string } {
   const chi = e.autore ?? 'Qualcuno'
   const i = e.impegno
+  if (e.tipo === 'promemoria') {
+    const ora = new Date(i.inizio).toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })
+    return { titolo: `Tra 10 minuti: ${i.titolo}`, testo: [`Alle ${ora}`, i.luogo, i.mezzo].filter(Boolean).join(' · ') }
+  }
   if (e.tipo === 'insert') {
     return { titolo: `Nuovo impegno: ${i.titolo}`, testo: `${quando(i)} · assegnato da ${chi}` }
   }
@@ -129,7 +133,8 @@ export async function POST(request: Request): Promise<Response> {
               }),
           )
         : []),
-      posta
+      // Il promemoria dei 10 minuti arriva solo sul telefono.
+      posta && evento.tipo !== 'promemoria'
         ? posta
             .sendMail({
               from: `Agenda Autista <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`,
