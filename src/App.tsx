@@ -106,7 +106,9 @@ function Agenda({ sessione }: { sessione: Session }) {
           onChiudi={() => setVista(vista.impegno ? { tipo: 'dettaglio', id: vista.impegno.id } : { tipo: 'nessuna' })}
           onSalvato={() => {
             ricarica()
-            setVista(vista.impegno ? { tipo: 'dettaglio', id: vista.impegno.id } : { tipo: 'nessuna' })
+            // Dopo il salvataggio si torna al calendario: tornando al dettaglio il tocco su "Salva"
+            // finiva spesso sul pulsante di stato e segnava l'impegno come completato.
+            setVista({ tipo: 'nessuna' })
           }}
         />
       )}

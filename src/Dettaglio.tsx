@@ -101,8 +101,8 @@ export default function Dettaglio({ impegno, io, utenti, onChiudi, onModifica, o
 
         {errore && <p role="alert" className="errore">{errore}</p>}
         <div className="azioni">
-          <button className="secondario" onClick={onModifica}>Modifica</button>
-          <button className="primario" onClick={cambiaStato}>{completato ? 'Riapri' : 'Completato'}</button>
+          <button className="primario" onClick={onModifica}>Modifica</button>
+          <button className="secondario" onClick={cambiaStato}>{completato ? 'Riapri' : 'Segna come fatto'}</button>
         </div>
         {puoAssegnare(io.ruolo) ? (
           <button className="pericolo" onClick={elimina}>Elimina impegno</button>
