@@ -1,4 +1,4 @@
-export type Ruolo = 'autista' | 'logistica' | 'stabilimento' | 'amministrazione'
+export type Ruolo = 'autista' | 'logistica' | 'stabilimento' | 'amministrazione' | 'presidente'
 
 export type Utente = {
   id: string
@@ -28,6 +28,7 @@ export const NOMI_RUOLO: Record<Ruolo, string> = {
   logistica: 'Logistica',
   stabilimento: 'Stabilimento',
   amministrazione: 'Amministrazione',
+  presidente: 'Presidente',
 }
 
 export const puoAssegnare = (r: Ruolo) => r !== 'autista'
@@ -37,6 +38,7 @@ export const COLORI_RUOLO: Record<Ruolo, { testo: string; fondo: string; bordo: 
   logistica: { testo: '#1f5fa8', fondo: '#e6eef8', bordo: '#9db9dd' },
   stabilimento: { testo: '#4b5a22', fondo: '#edf0e1', bordo: '#b8c394' },
   amministrazione: { testo: '#6b3fa0', fondo: '#f0e9f7', bordo: '#c9b3e3' },
+  presidente: { testo: '#9a3412', fondo: '#fdeee4', bordo: '#f0b48f' },
 }
 
 export const MEZZI = ['Auto aziendale', 'Furgone', 'Camion']

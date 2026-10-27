@@ -43,7 +43,7 @@ export default function Calendario({ lunedi, impegni, utenti, onSettimana, onApr
       </div>
 
       <div className="filtri" role="group" aria-label="Filtra per chi ha assegnato">
-        {(['tutti', 'logistica', 'stabilimento', 'amministrazione'] as Filtro[]).map((f) => (
+        {(['tutti', 'logistica', 'stabilimento', 'amministrazione', 'presidente'] as Filtro[]).map((f) => (
           <button
             key={f}
             aria-pressed={filtro === f}

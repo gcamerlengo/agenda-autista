@@ -9,6 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
+      workbox: { importScripts: ['push-sw.js'], navigateFallbackDenylist: [/^\/api\//] },
       manifest: {
         name: 'Agenda Autista',
         short_name: 'Agenda',

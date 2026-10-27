@@ -58,6 +58,7 @@ input, select, textarea {
 .filtro-logistica { --c: #1f5fa8; }
 .filtro-stabilimento { --c: #4b5a22; }
 .filtro-amministrazione { --c: #6b3fa0; }
+.filtro-presidente { --c: #9a3412; }
 
 .griglia-contenitore { overflow-x: auto; background: var(--carta); border: 1px solid var(--bordo); border-radius: 16px; }
 .griglia { min-width: 900px; display: grid; grid-template-columns: 64px repeat(7, minmax(0, 1fr)); }
@@ -130,3 +131,10 @@ textarea { height: auto; padding: 10px 12px; resize: vertical; }
 .storico small { color: var(--testo-2); }
 .azioni { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .centrato { text-align: center; margin: 0; }
+
+.banner-notifiche {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 16px; padding: 12px 14px;
+  background: var(--carta); border: 1px solid var(--bordo); border-radius: 14px; font-size: 14px;
+}
+.banner-notifiche span { flex: 1 1 220px; }
+.banner-notifiche .primario { height: 44px; }

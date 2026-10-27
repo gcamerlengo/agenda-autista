@@ -8,6 +8,7 @@ import Accesso from './Accesso'
 import Calendario from './Calendario'
 import Dettaglio from './Dettaglio'
 import FormImpegno from './FormImpegno'
+import PulsanteNotifiche from './PulsanteNotifiche'
 
 type Vista = { tipo: 'nessuna' } | { tipo: 'dettaglio'; id: string } | { tipo: 'form'; impegno: Impegno | null }
 
@@ -75,6 +76,7 @@ function Agenda({ sessione }: { sessione: Session }) {
         </div>
       </header>
 
+      <PulsanteNotifiche />
       {errore && <p role="alert" className="errore">{errore}</p>}
       {io && !io.ruolo && <p className="errore">Profilo non trovato.</p>}
 
