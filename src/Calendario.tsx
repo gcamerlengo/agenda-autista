@@ -25,6 +25,11 @@ type Props = {
 
 type Filtro = 'tutti' | Exclude<Ruolo, 'autista'>
 
+// Sul telefono i filtri usano nomi brevi, così stanno tutti su una riga.
+const NOMI_BREVI: Record<Exclude<Ruolo, 'autista'>, string> = {
+  logistica: 'Logistica', stabilimento: 'Stabil.', amministrazione: 'Ammin.', presidente: 'Presid.',
+}
+
 export default function Calendario({ modo, onModo, giorno, onGiorno, mese, onMese, onOggi, impegni, utenti, onApri }: Props) {
   const largo = useSchermoLargo()
   const [filtro, setFiltro] = useState<Filtro>('tutti')
@@ -86,10 +91,16 @@ export default function Calendario({ modo, onModo, giorno, onGiorno, mese, onMes
           <button
             key={f}
             aria-pressed={filtro === f}
+            aria-label={f === 'tutti' ? 'Tutti' : NOMI_RUOLO[f]}
             className={`filtro filtro-${f}`}
             onClick={() => setFiltro(f)}
           >
-            {f === 'tutti' ? 'Tutti' : NOMI_RUOLO[f]}
+            {f === 'tutti' ? 'Tutti' : (
+              <>
+                <span className="nome-lungo">{NOMI_RUOLO[f]}</span>
+                <span className="nome-breve" aria-hidden="true">{NOMI_BREVI[f]}</span>
+              </>
+            )}
           </button>
         ))}
       </div>
