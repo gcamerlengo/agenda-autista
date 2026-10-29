@@ -37,6 +37,8 @@ Gli impegni li assegnano Logistica, Responsabile Stabilimento, Amministrazione e
    `supabase/migrations/0002b_presidente_notifiche.sql`. L'ultimo mostra il `WEBHOOK_SECRET` da copiare su Vercel.
 7. Esegui `supabase/migrations/0003_promemoria.sql`: attiva pg_cron e invia a Stefano una notifica push
    10 minuti prima di ogni impegno da fare.
+8. Esegui `supabase/migrations/0004_stefano_crea.sql`: anche Stefano può creare impegni
+   ed eliminare quelli che ha creato lui.
 
 ### 2. Vercel
 1. Su [vercel.com](https://vercel.com) importa il repository `agenda-autista`.

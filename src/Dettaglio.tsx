@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { dataEOra, ora } from './lib/date'
-import { COLORI_RUOLO, NOMI_RUOLO, puoAssegnare, type Impegno, type Utente } from './lib/tipi'
+import { COLORI_RUOLO, NOMI_RUOLO, puoEliminare, type Impegno, type Utente } from './lib/tipi'
 import { spiegaErrore } from './lib/useImpegni'
 
 type Voce = {
@@ -66,7 +66,10 @@ export default function Dettaglio({ impegno, io, utenti, onChiudi, onModifica, o
     if (!window.confirm('Eliminare questo impegno?')) return
     const { error } = await supabase.from('impegni').delete().eq('id', impegno.id)
     if (error) setErrore(spiegaErrore(error.code, error.message))
-    else onChiudi()
+    else {
+      onCambiato()
+      onChiudi()
+    }
   }
 
   return (
@@ -104,7 +107,7 @@ export default function Dettaglio({ impegno, io, utenti, onChiudi, onModifica, o
           <button className="primario" onClick={onModifica}>Modifica</button>
           <button className="secondario" onClick={cambiaStato}>{completato ? 'Riapri' : 'Segna come fatto'}</button>
         </div>
-        {puoAssegnare(io.ruolo) ? (
+        {puoEliminare(io, impegno) ? (
           <button className="pericolo" onClick={elimina}>Elimina impegno</button>
         ) : (
           <p className="dettaglio centrato">Gli impegni non si possono rifiutare: puoi modificarli e segnarli come completati.</p>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { configurato, supabase } from './lib/supabase'
 import { aggiungiGiorni, aggiungiMesi, grigliaMese, inizioGiorno, inizioMese, inizioSettimana } from './lib/date'
-import { NOMI_RUOLO, puoAssegnare, type Impegno, type Utente } from './lib/tipi'
+import { NOMI_RUOLO, type Impegno, type Utente } from './lib/tipi'
 import { useImpegni } from './lib/useImpegni'
 import Accesso from './Accesso'
 import Calendario, { type Modo } from './Calendario'
@@ -89,7 +89,7 @@ function Agenda({ sessione }: { sessione: Session }) {
           <h1>Agenda di Stefano</h1>
         </div>
         <div className="azioni-testa">
-          {io && puoAssegnare(io.ruolo) && (
+          {io && (
             <button className="primario" onClick={() => setVista({ tipo: 'form', impegno: null })}>+ Nuovo impegno</button>
           )}
         </div>

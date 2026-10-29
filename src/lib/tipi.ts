@@ -33,8 +33,11 @@ export const NOMI_RUOLO: Record<Ruolo, string> = {
 
 export const puoAssegnare = (r: Ruolo) => r !== 'autista'
 
+// Gli assegnatori eliminano tutto; Stefano solo gli impegni che si è fissato da solo.
+export const puoEliminare = (io: Utente, i: Impegno) => puoAssegnare(io.ruolo) || i.assegnato_da === io.id
+
 export const COLORI_RUOLO: Record<Ruolo, { testo: string; fondo: string; bordo: string }> = {
-  autista: { testo: '#3f4d1f', fondo: '#edf0e1', bordo: '#b8c394' },
+  autista: { testo: '#0f6b6b', fondo: '#e0f2f1', bordo: '#9fd1cc' },
   logistica: { testo: '#1f5fa8', fondo: '#e6eef8', bordo: '#9db9dd' },
   stabilimento: { testo: '#4b5a22', fondo: '#edf0e1', bordo: '#b8c394' },
   amministrazione: { testo: '#6b3fa0', fondo: '#f0e9f7', bordo: '#c9b3e3' },
